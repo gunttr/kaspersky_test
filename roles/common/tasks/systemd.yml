@@ -1,0 +1,16 @@
+- name: Положить системд юнит
+  become: true
+  ansible.builtin.template:
+    src: "{{ files_src.service }}"
+    dest: "/etc/systemd/system/{{ service_name }}"
+    mode: "644"
+    owner: root
+    group: root
+
+- name: Запустить сервис
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ service_name }}"
+    daemon-reload: true
+    enabled: true
+    state: restarted

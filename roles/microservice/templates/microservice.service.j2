@@ -1,0 +1,23 @@
+[Unit]
+Description=Microservice
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ username }}
+Group={{ username }}
+Type=simple
+
+
+{% if microservice_mode == "local" %}
+WorkingDirectory={{ path.home }}
+ExecStartPre=/usr/bin/docker stop {{ container_name }}
+ExecStart={{ path.home }}/.venv/bin/python3  {{ path.home }}/service.py
+{% elif microservice_mode == "container" %}
+ExecStartPre=-/usr/bin/docker rm -f {{ container_name }}
+ExecStart=/usr/bin/docker run --name {{ container_name }} -p 8080:8080 {{ image_name }}
+ExecStop=/usr/bin/docker stop {{ container_name }}
+{% endif %}
+
+[Install]
+WantedBy=multi-user.target

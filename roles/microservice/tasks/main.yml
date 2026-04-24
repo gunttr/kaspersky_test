@@ -1,0 +1,25 @@
+# Приблизительно
+#
+#Подключиться к серверу 
+# Создать в /home/ директорию microservice
+# Зайти в директорию microservice
+# Скопировать в нее service.py и requirements.txt
+# Создать виртуальное окружение .venv
+# Установить все зависимости микросервиса из requirements.txt
+# Создать системд службу microserviced
+# Запустить эту службу
+
+
+- name: Общие действия
+  ansible.builtin.include_tasks: common.yml
+
+- name: Локальный запуск
+  ansible.builtin.include_tasks: local.yml
+  when: microservice_mode == "local"
+
+- name: Запуск в контейнере
+  ansible.builtin.include_tasks: container.yml
+  when: microservice_mode == "container"
+
+- name: Запустить сервис
+  ansible.builtin.include_tasks: ../../common/tasks/systemd.yml

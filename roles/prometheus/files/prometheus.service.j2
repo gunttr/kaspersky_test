@@ -1,0 +1,17 @@
+[Unit]
+Description=Prometheus
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User={{ username }}
+Group={{ username }}
+Type=simple
+ExecStart={{ path.home }}/prometheus \
+  --config.file={{ path.config }}/prometheus.yml \
+  --storage.tsdb.path={{ path.storage }}
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

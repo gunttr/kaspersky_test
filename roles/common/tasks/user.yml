@@ -1,0 +1,14 @@
+- name: Создать системного юзера
+  become: true
+  ansible.builtin.user: 
+    name: "{{ username }}"
+    shell: /usr/sbin/nologin
+    create_home: true
+    home: "{{ path.home }}"
+    state: present
+
+- name: Изменить права домашней директории
+  become: true
+  ansible.builtin.file:
+    path: "{{ path.home }}"
+    mode: "755"

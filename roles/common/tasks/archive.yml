@@ -1,0 +1,23 @@
+- name: Скачать архив
+  become: true 
+  ansible.builtin.get_url:
+    url: "{{ download_url }}"
+    dest: /tmp/
+    force: no
+
+- name: Скачать tar и unzip
+  become: true
+  ansible.builtin.dnf:
+    name:
+      - unzip
+      - tar
+    state: present
+
+- name: Разархивировать скачанный архив в домашнюю директорию
+  become: true
+  ansible.builtin.unarchive:
+    src: "/tmp/{{ archive_name }}"
+    dest: "{{ path.home }}"
+    remote_src: yes
+    extra_opts:
+      - --strip-components=1

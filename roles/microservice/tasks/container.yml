@@ -1,0 +1,32 @@
+- name: Добавить microservice в группу docker
+  become: true
+  ansible.builtin.user:
+    name: "{{ username }}"
+    groups: docker
+    append: true
+
+- name: Скопировать Dockerfile
+  become: true
+  ansible.builtin.copy:
+    src: "{{ files_src.dockerfile }}"
+    dest: "{{ path.home }}/Dockerfile"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "664"
+
+- name: Скопировать .dockerignore
+  become: true
+  ansible.builtin.copy:
+    src: "{{ files_src.dockerignore }}"
+    dest: "{{ path.home }}/.dockerignore"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "664"
+
+- name: Сделать docker build
+  become: true
+  community.docker.docker_image_build:
+    name: "{{ image_name }}"
+    path: "{{ path.home }}"
+    dockerfile: Dockerfile
+    rebuild: "always"

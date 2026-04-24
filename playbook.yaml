@@ -1,0 +1,68 @@
+- name: Деплой микросервиса, установка Prometheus и Node Exporter
+  hosts: servers
+  roles:
+    - role: prometheus
+      vars: 
+        username: prometheus
+        archive_name: prometheus-3.10.0.linux-amd64.tar.gz
+        download_url: "https://github.com/prometheus/prometheus/releases/download/v3.10.0/{{ archive_name }}"
+        service_name: "{{ username }}.service"
+
+        path:  
+          home: "/opt/{{ username }}"
+          config: "/etc/{{ username }}"
+          storage: "/var/lib/{{ username }}"
+
+        files_src:
+          service: files/prometheus.service.j2
+          config: files/prometheus.yml
+
+    - role: node_exporter
+      vars:
+        username: node_exporter
+        archive_name: node_exporter-1.10.2.linux-amd64.tar.gz
+        download_url: "https://github.com/prometheus/node_exporter/releases/download/v1.10.2/{{ archive_name }}"
+        service_name: "{{ username }}.service"
+
+        path:
+          home: "/opt/{{ username }}"
+
+        files_src:
+          service: files/node_exporter.service
+
+    - role: microservice
+      vars:
+        username: microservice
+        service_name: "{{ username }}.service"
+        image_name: "microservice:latest"
+        container_name: microservice-container
+        microservice_mode: local # по умолчанию запускаем локально
+
+        path: 
+          home: "/opt/{{ username }}"
+
+        files_src:
+          service: templates/microservice.service.j2
+          script: app/service.py
+          dockerfile: app/Dockerfile
+          dockerignore: app/.dockerignore
+          wheels: app/wheels
+          requirements: app/requirements.txt
+
+
+  tasks:
+    - name: Собрать информацию о сервисах
+      become: true
+      ansible.builtin.service_facts:
+
+    - name: Проверить что все сервисы запущены
+      ansible.builtin.assert:
+        that:
+          - ansible_facts.services[item].state == "running"
+        fail_msg: "Сервис {{ item }} не запущен"
+        success_msg: "Сервис {{ item }} работает"
+      
+      loop:
+        - prometheus.service
+        - node_exporter.service
+        - microservice.service

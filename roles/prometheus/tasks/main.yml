@@ -1,0 +1,57 @@
+# Декомпозиция для себя
+#
+# Создать системного пользователя prometheus c домашней директорией в /opt/prometheus
+# Создать папки /etc/prometheus и /var/lib/prometheus
+# В /tmp скачать архив с прометеусом
+# Разархивировать его в домашнюю директорию
+# Кинуть конфиг в /etc/prometheus
+# Кинуть бинарник прометуса в /opt/prometheus
+# Кинуть бинарник промтула в /usr/local/bin/
+# Скопировать системд юнит в /etc/systemd/system/prometheus.service
+# Запустить службу
+
+- name: Создать юзера prometheus
+  ansible.builtin.include_tasks: ../../common/tasks/user.yml
+
+- name: Создать директорию для хранения конфига
+  become: true
+  ansible.builtin.file:
+    path: "{{ path.config }}"
+    mode: "755"
+    state: directory
+    owner: root
+    group: root
+
+- name: Создать директорию для хранения storage
+  become: true
+  ansible.builtin.file:
+    path: "{{ path.storage }}"
+    mode: "755"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- name: Скачать архив prometheus  
+  ansible.builtin.include_tasks: ../../common/tasks/archive.yml
+
+- name: Положить конфиг файл в /etc/prometheus/
+  become: true
+  ansible.builtin.copy:
+    src: "{{ files_src.config }}"
+    dest: "{{ path.config }}"
+    mode: "644"
+    owner: root
+    group: root
+
+- name: Положить бинарник промтула в /usr/local/bin
+  become: true
+  ansible.builtin.copy:
+    src: "{{ path.home }}/promtool"
+    dest: /usr/local/bin/
+    mode: "755"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    remote_src: true
+
+- name: Запустить сервис
+  ansible.builtin.include_tasks: ../../common/tasks/systemd.yml

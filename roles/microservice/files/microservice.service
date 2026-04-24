@@ -1,0 +1,16 @@
+[Unit]
+Description=Microservice
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=microservice
+Group=microservice
+Type=simple
+ExecStart=/opt/microservice/.venv/bin/python3  /opt/microservice/service.py
+Restart=on-failure
+RestartSec=5
+
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,28 @@
+- name: Установить pip
+  become: true
+  ansible.builtin.dnf:
+    name: python3-pip
+    state: present
+
+- name: Установить python3-packaging
+  become: true
+  ansible.builtin.dnf:
+    name:
+    - python3-packaging
+    state: present
+
+- name: Создать .venv, установить зависимости
+  become: true
+  ansible.builtin.pip:
+    requirements: "{{ path.home }}/requirements.txt"
+    virtualenv: "{{ path.home }}/.venv"
+    virtualenv_command: python3 -m venv
+    extra_args: "--no-index --find-links={{ path.home }}/wheels"
+
+- name: Сделать владельцем microservice
+  become: true
+  ansible.builtin.file:
+    path: "{{ path.home }}/.venv"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    recurse: yes 

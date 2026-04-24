@@ -1,0 +1,15 @@
+# Создать системного пользователя node_exporter, с домашней директорией в /opt/node_exporter
+# Скачать архив ноуд экпортера в /tmp
+# Распаковать этот архив в /opt/node_exporter
+# Положить системд юнит в /etc/systemd/system/node_exporter.service
+# Запустить службу
+# Сделать проверку
+
+- name: Создать юзера node_exporter
+  ansible.builtin.include_tasks: ../../common/tasks/user.yml
+
+- name: Скачать архив node_exporter
+  ansible.builtin.include_tasks: ../../common/tasks/archive.yml
+
+- name: Запустить сервис
+  ansible.builtin.include_tasks: ../../common/tasks/systemd.yml

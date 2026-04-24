@@ -1,0 +1,29 @@
+- name: Создать юзера microservice
+  ansible.builtin.include_tasks: ../../common/tasks/user.yml
+
+- name: Скопировать wheels
+  become: true
+  ansible.builtin.copy:
+    src: "{{ files_src.wheels }}"
+    dest: "{{ path.home }}/wheels/"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "664"
+
+- name: Скопировать service.py
+  become: true
+  ansible.builtin.copy:
+    src: "{{ files_src.script }}"
+    dest: "{{ path.home }}/service.py"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "664"
+
+- name: Скопировать requirements.txt
+  become: true
+  ansible.builtin.copy:
+    src: "{{ files_src.requirements }}"
+    dest: "{{ path.home }}/requirements.txt"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "664"
